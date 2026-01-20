@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OVA | Ciencias Naturales (6°-11°)</title>
+    <style>
+        /* --- TEMA: LABORATORIO BIO-FUTURISTA --- */
+        :root {
+            --primary: #00695c; /* Verde Ciencia */
+            --secondary: #4db6ac; /* Verde Claro */
+            --accent: #00e5ff; /* Cyan Neón */
+            --dark-bg: #102027; /* Fondo Proyector */
+            --light-bg: #f1f8e9;
+            --text-main: #263238;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background-color: var(--light-bg);
+            background-image: radial-gradient(#b2dfdb 1px, transparent 1px);
+            background-size: 20px 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- CONTENEDORES --- */
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 550px;
+            text-align: center;
+            border-top: 6px solid var(--primary);
+            position: relative;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1, h2, h3 { color: var(--primary); margin: 0.5rem 0; }
+        p { color: #546e7a; margin-top: 5px; font-size: 0.95rem; }
+
+        /* --- FORMULARIOS --- */
+        input, select {
+            width: 100%; padding: 12px; margin: 8px 0;
+            border: 2px solid #cfd8dc; border-radius: 8px;
+            box-sizing: border-box; font-size: 1rem;
+        }
+        input:focus, select:focus { border-color: var(--primary); outline: none; }
+        
+        /* Input de archivo personalizado */
+        .file-upload-wrapper {
+            position: relative;
+            margin: 10px 0;
+            border: 2px dashed #b0bec5;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+            color: #78909c;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .file-upload-wrapper:hover { border-color: var(--primary); background: #e0f2f1; }
+
+        /* --- BOTONES --- */
+        button {
+            width: 100%; padding: 12px;
+            background-color: var(--primary); color: white;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: bold;
+            cursor: pointer; margin-top: 15px;
+            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        button:hover { background-color: #004d40; transform: translateY(-2px); }
+        .btn-danger { background-color: #c62828; }
+        .btn-live { 
+            background: linear-gradient(45deg, #004d40, #00bfa5); 
+            box-shadow: 0 4px 15px rgba(0, 191, 165, 0.4);
+        }
+
+        /* --- DASHBOARD EN VIVO (MODO OSCURO) --- */
+        #live-dashboard {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--dark-bg);
+            color: white; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; box-sizing: border-box; overflow-y: auto;
+        }
+
+        .dash-header {
+            width: 100%; max-width: 1000px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; border-bottom: 1px solid #37474f; padding-bottom: 10px;
+        }
+
+        .controls-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px; border-radius: 50px;
+            display: flex; gap: 15px; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
+        }
+
+        /* TABLA DE POSICIONES */
+        .leaderboard { width: 100%; max-width: 1000px; border-collapse: separate; border-spacing: 0 10px; }
+        .leaderboard th { text-align: left; color: #b0bec5; padding: 10px; text-transform: uppercase; font-size: 0.9rem; }
+        .row-card { background: #263238; transition: all 0.5s ease; }
+        .row-card td { padding: 15px; border-top: 1px solid #37474f; border-bottom: 1px solid #37474f; }
+        .row-card td:first-child { border-left: 1px solid #37474f; border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        .row-card td:last-child { border-right: 1px solid #37474f; border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        
+        .rank-circle {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: #455a64; display: flex; justify-content: center; align-items: center; font-weight: bold;
+        }
+        .top-1 .rank-circle { background: #ffd700; color: black; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        .top-2 .rank-circle { background: #c0c0c0; color: black; }
+        .top-3 .rank-circle { background: #cd7f32; color: black; }
+
+        /* BARRA DE PROGRESO */
+        .progress-track { background: #37474f; height: 8px; border-radius: 4px; width: 100%; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.8s ease-in-out; box-shadow: 0 0 10px var(--accent); }
+
+        /* LISTA ACTIVIDADES */
+        .activity-item {
+            background: #f9fbe7; border-left: 5px solid var(--secondary);
+            padding: 15px; margin: 10px 0; text-align: left; border-radius: 4px;
+            position: relative;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="container">
+        <div style="font-size: 3rem;">🧬</div>
+        <h1>Ciencias Naturales</h1>
+        <p>Plataforma Virtual (6° a 11°)</p>
+        
+        <input type="text" id="user-in" placeholder="✉️ Usuario o Correo Institucional">
+        <input type="password" id="pass-in" placeholder="🔒 Contraseña (Solo Docente)">
+        
+        <button onclick="login()">Ingresar</button>
+        
+        <p style="font-size: 0.8rem; margin-top: 20px; color: #90a4ae;">
+            * Docente: <b>jramirezgiraldo</b> / <b>Biol2008%</b><br>
+            * Estudiantes: Ingresa tu correo (sin contraseña).
+        </p>
+    </div>
+
+    <div id="register-view" class="container hidden">
+        <h2>📝 Nuevo Estudiante</h2>
+        <p>Configura tu perfil para iniciar.</p>
+        
+        <input type="number" id="reg-age" placeholder="Edad">
+        
+        <select id="reg-grade">
+            <option value="" disabled selected>Selecciona tu Grado</option>
+            <option value="6">Grado 6° - (Biología Básica)</option>
+            <option value="7">Grado 7° - (Ecosistemas)</option>
+            <option value="8">Grado 8° - (Genética)</option>
+            <option value="9">Grado 9° - (Evolución)</option>
+            <option value="10">Grado 10° - (Química/Física)</option>
+            <option value="11">Grado 11° - (Profundización)</option>
+        </select>
+        
+        <select id="reg-gender">
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
+        </select>
+
+        <button onclick="register()">Guardar Perfil</button>
+    </div>
+
+    <div id="admin-view" class="container hidden" style="max-width: 600px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin:0">👨‍🔬 Panel Docente</h2>
+            <small>Juan Felipe Ramirez</small>
+        </div>
+        <hr style="border:0; border-top:1px solid #e0e0e0; margin: 15px 0;">
+
+        <div style="background: #e0f7fa; padding: 15px; border-radius: 10px; text-align: left; margin-bottom: 20px;">
+            <h3 style="margin-top:0;">📡 Tablero de Competencia</h3>
+            <p style="font-size: 0.9rem;">Proyecta el progreso de la clase en tiempo real.</p>
+            <button class="btn-live" onclick="openLiveDashboard()">🖥️ ABRIR PROYECCIÓN</button>
+        </div>
+
+        <div style="text-align: left; border: 2px solid #e0e0e0; padding: 20px; border-radius: 10px; background: white;">
+            <h3>📤 Cargar Actividad</h3>
+            <input type="text" id="act-title" placeholder="Título (Ej: Taller de Células)">
+            
+            <div style="display: flex; gap: 10px;">
+                <select id="act-grade">
+                    <option value="" disabled selected>Grado</option>
+                    <option value="6">6°</option>
+                    <option value="7">7°</option>
+                    <option value="8">8°</option>
+                    <option value="9">9°</option>
+                    <option value="10">10°</option>
+                    <option value="11">11°</option>
+                </select>
+                <select id="act-period">
+                    <option value="1">Periodo 1</option>
+                    <option value="2">Periodo 2</option>
+                    <option value="3">Periodo 3</option>
+                </select>
+            </div>
+
+            <div class="file-upload-wrapper" onclick="document.getElementById('act-file').click()">
+                <span id="file-label">📎 Clic para adjuntar archivo (PDF/IMG/DOC)</span>
+                <input type="file" id="act-file" style="display: none;" onchange="updateFileLabel()">
+            </div>
+            
+            <button onclick="uploadActivity()">Publicar Actividad</button>
+        </div>
+        
+        <button class="btn-danger" onclick="logout()" style="margin-top: 30px;">Cerrar Sesión</button>
+    </div>
+
+    <div id="live-dashboard" class="hidden">
+        <div class="dash-header">
+            <div>
+                <h1 style="color:white; margin:0;">🚀 Progreso de Clase</h1>
+                <span style="color:var(--accent); font-size: 0.9rem;">CIENCIAS NATURALES | EN VIVO</span>
+            </div>
+            <button onclick="closeLiveDashboard()" class="btn-danger" style="width: auto; padding: 8px 20px;">Cerrar</button>
+        </div>
+
+        <div class="controls-bar">
+            <span style="font-weight: bold;">VISTA:</span>
+            <select id="live-filter" onchange="renderLeaderboard()" style="width: auto; margin: 0; background: #263238; color: white; border: none;">
+                <option value="all">Todos los Grados</option>
+                <option value="6">Grado 6°</option>
+                <option value="7">Grado 7°</option>
+                <option value="8">Grado 8°</option>
+                <option value="9">Grado 9°</option>
+                <option value="10">Grado 10°</option>
+                <option value="11">Grado 11°</option>
+            </select>
+            
+            <div style="width: 2px; height: 20px; background: rgba(255,255,255,0.3);"></div>
+
+            <button id="sim-btn" onclick="toggleSimulation()" style="width: auto; margin: 0; padding: 8px 15px; background: #ffca28; color: black;">
+                ▶ INICIAR SIMULACIÓN
+            </button>
+        </div>
+
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th width="10%">Pos</th>
+                    <th width="30%">Estudiante</th>
+                    <th width="15%">Grado</th>
+                    <th width="35%">Barra de Progreso</th>
+                    <th width="10%">%</th>
+                </tr>
+            </thead>
+            <tbody id="lb-body"></tbody>
+        </table>
+    </div>
+
+    <div id="student-view" class="container hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin:0;">Hola, <span id="st-name">Estudiante</span></h2>
+            <span id="st-badge" style="background: var(--primary); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">Grado ?</span>
+        </div>
+        <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">
+        
+        <p style="text-align: left; font-weight: bold;">📚 Tus Actividades:</p>
+        <div id="st-activities-list" style="text-align: left; min-height: 100px;">
+            </div>
+
+        <button class="btn-danger" onclick="logout()">Salir</button>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const ADMIN = "jramirezgiraldo";
+        const PASS = "Biol2008%";
+        let currentUserEmail = "";
+        let currentUserGrade = "";
+        let simulationTimer = null;
+
+        // --- BASE DE DATOS SIMULADA (Estudiantes Virtuales) ---
+        let dbStudents = [
+            { name: "Samuel Torres", grade: "6", progress: 10 },
+            { name: "Valeria Henao", grade: "6", progress: 30 },
+            { name: "Camilo Buitrago", grade: "7", progress: 50 },
+            { name: "Sofia Mendez", grade: "8", progress: 15 },
+            { name: "Esteban Quito", grade: "9", progress: 70 },
+            { name: "Mariana Pajon", grade: "9", progress: 65 },
+            { name: "Pedro Pascal", grade: "10", progress: 20 },
+            { name: "Shakira Mebarak", grade: "11", progress: 90 }
+        ];
+
+        // Inicializar DB de actividades si no existe
+        if (!localStorage.getItem('activities_db')) {
+            localStorage.setItem('activities_db', JSON.stringify([]));
+        }
+
+        // --- LOGIN ---
+        function login() {
+            const u = document.getElementById('user-in').value.trim();
+            const p = document.getElementById('pass-in').value.trim();
+
+            if(u === ADMIN && p === PASS) {
+                showView('admin-view');
+            } else if (u.includes('@')) {
+                currentUserEmail = u;
+                const savedData = localStorage.getItem('user_' + u);
+                if(savedData) {
+                    const profile = JSON.parse(savedData);
+                    currentUserGrade = profile.grade;
+                    loadStudentDashboard(profile);
+                } else {
+                    showView('register-view');
+                }
+            } else {
+                alert("Credenciales inválidas.");
+            }
+        }
+
+        // --- REGISTRO ---
+        function register() {
+            const grade = document.getElementById('reg-grade').value;
+            const age = document.getElementById('reg-age').value;
+            
+            if(!grade || !age) { alert("Completa todos los datos"); return; }
+
+            const profile = { email: currentUserEmail, grade: grade, age: age };
+            localStorage.setItem('user_' + currentUserEmail, JSON.stringify(profile));
+            currentUserGrade = grade;
+
+            // Agregar a la DB virtual para que aparezca en el tablero en vivo
+            dbStudents.push({ 
+                name: currentUserEmail.split('@')[0], 
+                grade: grade, 
+                progress: 0 
+            });
+
+            loadStudentDashboard(profile);
+        }
+
+        function loadStudentDashboard(profile) {
+            document.getElementById('st-name').innerText = profile.email.split('@')[0];
+            document.getElementById('st-badge').innerText = "Grado " + profile.grade + "°";
+            
+            // Cargar Actividades Reales desde LocalStorage
+            renderStudentActivities(profile.grade);
+            
+            showView('student-view');
+        }
+
+        // --- GESTIÓN DE ACTIVIDADES (DOCENTE) ---
+        function updateFileLabel() {
+            const input = document.getElementById('act-file');
+            const label = document.getElementById('file-label');
+            if (input.files.length > 0) {
+                label.innerText = "📄 " + input.files[0].name;
+                label.style.color = "#00695c";
+                label.style.fontWeight = "bold";
+            }
+        }
+
+        function uploadActivity() {
+            const title = document.getElementById('act-title').value;
+            const grade = document.getElementById('act-grade').value;
+            const period = document.getElementById('act-period').value;
+            const fileInput = document.getElementById('act-file');
+
+            if (!title || !grade || !period || fileInput.files.length === 0) {
+                alert("⚠️ Por favor completa todos los campos y adjunta un archivo.");
+                return;
+            }
+
+            const newActivity = {
+                title: title,
+                grade: grade,
+                period: period,
+                fileName: fileInput.files[0].name,
+                date: new Date().toLocaleDateString()
+            };
+
+            // Guardar en LocalStorage
+            const activities = JSON.parse(localStorage.getItem('activities_db'));
+            activities.push(newActivity);
+            localStorage.setItem('activities_db', JSON.stringify(activities));
+
+            alert(`✅ Actividad "${title}" publicada correctamente para el Grado ${grade}°`);
+            
+            // Limpiar
+            document.getElementById('act-title').value = "";
+            document.getElementById('act-file').value = "";
+            document.getElementById('file-label').innerText = "📎 Clic para adjuntar archivo";
+        }
+
+        // --- RENDERIZADO ALUMNO ---
+        function renderStudentActivities(studentGrade) {
+            const list = document.getElementById('st-activities-list');
+            const allActivities = JSON.parse(localStorage.getItem('activities_db'));
+            
+            // Filtrar solo las del grado del estudiante
+            const myActivities = allActivities.filter(a => a.grade === studentGrade);
+
+            if (myActivities.length === 0) {
+                list.innerHTML = `<p style="color:#999; text-align:center;">No tienes actividades asignadas aún.</p>`;
+                return;
+            }
+
+            let html = "";
+            // Mostrar las más recientes primero
+            myActivities.reverse().forEach(act => {
+                html += `
+                    <div class="activity-item">
+                        <strong>${act.title}</strong>
+                        <div style="font-size:0.85rem; color:#555; margin-top:5px;">
+                            📅 ${act.date} | Periodo ${act.period}
+                        </div>
+                        <div style="margin-top:8px; color:var(--primary); font-weight:bold;">
+                            📥 Descargar: ${act.fileName}
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        // --- TABLERO EN VIVO ---
+        function openLiveDashboard() { showView('live-dashboard'); renderLeaderboard(); }
+        function closeLiveDashboard() { stopSimulation(); showView('admin-view'); }
+
+        function renderLeaderboard() {
+            const filterGrade = document.getElementById('live-filter').value;
+            const tbody = document.getElementById('lb-body');
+            tbody.innerHTML = "";
+
+            let visibleStudents = dbStudents;
+            if (filterGrade !== 'all') {
+                visibleStudents = dbStudents.filter(s => s.grade === filterGrade);
+            }
+
+            visibleStudents.sort((a, b) => b.progress - a.progress);
+
+            if(visibleStudents.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px; color:#aaa;'>No hay estudiantes en este grado.</td></tr>";
+                return;
+            }
+
+            visibleStudents.forEach((st, index) => {
+                const rank = index + 1;
+                let topClass = rank <= 3 ? `top-${rank}` : '';
+                tbody.innerHTML += `
+                    <tr class="row-card ${topClass}">
+                        <td><div class="rank-circle">${rank}</div></td>
+                        <td style="font-weight:bold;">${st.name}</td>
+                        <td style="color:#90a4ae;">Grado ${st.grade}°</td>
+                        <td>
+                            <div class="progress-track"><div class="progress-fill" style="width: ${st.progress}%"></div></div>
+                        </td>
+                        <td style="color:var(--accent); font-weight:bold;">${st.progress}%</td>
+                    </tr>`;
+            });
+        }
+
+        function toggleSimulation() {
+            const btn = document.getElementById('sim-btn');
+            if(simulationTimer) {
+                stopSimulation();
+            } else {
+                btn.innerHTML = "⏸ PAUSAR";
+                btn.style.background = "#ff7043";
+                simulationTimer = setInterval(() => {
+                    const randomStudent = dbStudents[Math.floor(Math.random() * dbStudents.length)];
+                    if(randomStudent.progress < 100) randomStudent.progress += 5;
+                    renderLeaderboard();
+                }, 800);
+            }
+        }
+        function stopSimulation() {
+            clearInterval(simulationTimer);
+            simulationTimer = null;
+            const btn = document.getElementById('sim-btn');
+            if(btn) { btn.innerHTML = "▶ INICIAR SIMULACIÓN"; btn.style.background = "#ffca28"; }
+        }
+
+        // --- UTILIDADES ---
+        function showView(id) {
+            document.querySelectorAll('body > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function logout() { currentUserEmail = ""; showView('login-view'); }
+    </script>
+</body>
+</html>
